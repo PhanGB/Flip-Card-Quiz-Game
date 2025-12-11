@@ -179,8 +179,8 @@ input {
   }
 
   #grid {
-    grid-template-columns: repeat(3, 80px);
-    gap: 8px;
+    grid-template-columns: repeat(4, 80px);
+    gap: 0px;
     margin-top: 10px;
   }
 
