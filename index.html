@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lật thẻ</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <h2>Lật thẻ đoán hình bí mật</h2>
+
+  <button id="guessMystery">Trả lời ngay bức tranh bí ẩn</button>
+
+  <div id="container">
+    <img id="finalImage" src="images/ban-do.gif" width="600" />
+    <div id="grid"></div>
+  </div>
+
+  <div id="questionBox" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeQuestion()">&times;</span>
+      <h3 id="questionText"></h3>
+      <div id="optionsContainer"></div>
+      <button onclick="submitAnswer()">Trả lời</button>
+    </div>
+  </div>
+
+  <div id="mysteryBox" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeMystery()">&times;</span>
+      <h3>Đoán bức tranh bí ẩn:</h3>
+      <input type="text" id="mysteryInput" placeholder="Nhập đáp án..." />
+      <br />
+      <button onclick="submitMystery()">Xác nhận</button>
+    </div>
+  </div>
+
+  <script>
+    let allQuestions = [];
+    let availableQuestions = [];
+    let mysteryAnswer = "";
+
+    let currentIndex = null;
+    let currentQuestion = null;
+    let selectedAnswer = null;
+
+    // Load câu hỏi từ file JSON
+    async function loadQuestions() {
+      try {
+        const response = await fetch("questions.json");
+        const data = await response.json();
+        allQuestions = data.questions;
+        availableQuestions = [...allQuestions];
+        mysteryAnswer = data.mysteryAnswer;
+        loadGrid();
+      } catch (error) {
+        console.error("Lỗi khi load file JSON:", error);
+        alert("Không thể load câu hỏi. Vui lòng kiểm tra file questions.json");
+      }
+    }
+
+    function getRandomQuestion() {
+      if (availableQuestions.length === 0) {
+        return null;
+      }
+      const randomIdx = Math.floor(Math.random() * availableQuestions.length);
+      const question = availableQuestions[randomIdx];
+      availableQuestions.splice(randomIdx, 1);
+      return question;
+    }
+
+    function loadGrid() {
+      const grid = document.getElementById("grid");
+      allQuestions.forEach((_, i) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = i + 1;
+        card.id = `card-${i}`;
+        card.onclick = function () {
+          if (!this.classList.contains("hidden-card")) {
+            openQuestion(i);
+          }
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function openQuestion(i) {
+      currentIndex = i;
+      selectedAnswer = null;
+
+      const question = getRandomQuestion();
+      if (!question) {
+        alert("Hết câu hỏi rồi!");
+        return;
+      }
+
+      currentQuestion = question;
+      document.getElementById("questionText").textContent = question.q;
+      const container = document.getElementById("optionsContainer");
+      container.innerHTML = "";
+
+      question.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "option-button";
+        btn.textContent = option;
+        btn.onclick = () => selectOption(btn, option);
+        container.appendChild(btn);
+      });
+
+      document.getElementById("questionBox").style.display = "block";
+    }
+
+    function selectOption(btn, option) {
+      document.querySelectorAll(".option-button").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedAnswer = option;
+    }
+
+    function submitAnswer() {
+      if (!selectedAnswer) {
+        alert("Vui lòng chọn một đáp án!");
+        return;
+      }
+
+      let correct = currentQuestion.a;
+
+      if (selectedAnswer === correct) {
+        const card = document.getElementById(`card-${currentIndex}`);
+        card.classList.add("hidden-card");
+        card.textContent = "";
+
+        checkWin();
+      } else {
+        alert("Sai rồi! Hãy thử lại.");
+      }
+
+      document.getElementById("questionBox").style.display = "none";
+    }
+
+    function closeQuestion() {
+      document.getElementById("questionBox").style.display = "none";
+    }
+
+    function closeMystery() {
+      document.getElementById("mysteryBox").style.display = "none";
+    }
+
+    function checkWin() {
+      let allDone = [...document.querySelectorAll('.card')].every(c => c.classList.contains('hidden-card'));
+      if (allDone) {
+        document.getElementById("finalImage").style.display = "block";
+      }
+    }
+
+    document.getElementById("guessMystery").onclick = () => {
+      document.getElementById("mysteryBox").style.display = "block";
+    };
+
+    function submitMystery() {
+      let input = document.getElementById("mysteryInput").value.toLowerCase().trim();
+
+      if (input === mysteryAnswer) {
+        document.querySelectorAll('.card').forEach(c => {
+          c.classList.add('hidden-card');
+          c.textContent = "";
+        });
+        document.getElementById("finalImage").style.display = "block";
+        alert("Chính xác! Bạn đã mở toàn bộ bức tranh.");
+      } else {
+        alert("Sai rồi! Thử lại nhé.");
+      }
+    }
+
+    loadQuestions();
+  </script>
+</body>
+
+</html>
