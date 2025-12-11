@@ -37,6 +37,19 @@
     </div>
   </div>
 
+  <div id="wheelBox" class="modal">
+    <div class="modal-content wheel-modal">
+      <span class="close" onclick="closeWheel()">&times;</span>
+      <h3>Vòng quay may mắn!</h3>
+      <div class="wheel-container">
+        <canvas id="wheelCanvas" width="300" height="300"></canvas>
+        <div class="wheel-pointer">▼</div>
+      </div>
+      <button id="spinButton" onclick="spinWheel()">Quay!</button>
+      <div id="wheelResult"></div>
+    </div>
+  </div>
+
   <script>
     let allQuestions = [];
     let availableQuestions = [];
@@ -132,12 +145,14 @@
         card.classList.add("hidden-card");
         card.textContent = "";
 
-        checkWin();
+        document.getElementById("questionBox").style.display = "none";
+        
+        // Hiển thị vòng quay may mắn
+        showWheel();
       } else {
         alert("Sai rồi! Hãy thử lại.");
+        document.getElementById("questionBox").style.display = "none";
       }
-
-      document.getElementById("questionBox").style.display = "none";
     }
 
     function closeQuestion() {
@@ -161,17 +176,134 @@
 
     function submitMystery() {
       let input = document.getElementById("mysteryInput").value.toLowerCase().trim();
+      let answer = mysteryAnswer.toLowerCase().trim();
 
-      if (input === mysteryAnswer) {
+      if (input === answer) {
         document.querySelectorAll('.card').forEach(c => {
           c.classList.add('hidden-card');
           c.textContent = "";
         });
         document.getElementById("finalImage").style.display = "block";
         alert("Chính xác! Bạn đã mở toàn bộ bức tranh.");
+        document.getElementById("mysteryBox").style.display = "none";
       } else {
-        alert("Sai rồi! Thử lại nhé.");
+        alert("Sai rồi con.");
       }
+    }
+
+    // Vòng quay may mắn
+    const prizes = [
+      { text: "Kẹo", color: "#FF6B6B" },
+      { text: "+1 Điểm", color: "#4ECDC4" },
+      { text: "Mời 1 Bạn", color: "#FFE66D" },
+      { text: "Trả lời tiếp", color: "#95E1D3" }
+    ];
+    let isSpinning = false;
+
+    function drawWheel() {
+      const canvas = document.getElementById("wheelCanvas");
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext("2d");
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 140;
+      const sliceAngle = (2 * Math.PI) / prizes.length;
+      const offsetAngle = -Math.PI / 2; // Bắt đầu từ trên cùng
+
+      prizes.forEach((prize, i) => {
+        const startAngle = i * sliceAngle + offsetAngle;
+        const endAngle = startAngle + sliceAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = prize.color;
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(startAngle + sliceAngle / 2);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#000";
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(prize.text, radius / 1.5, 5);
+        ctx.restore();
+      });
+
+      // Vẽ tâm
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function showWheel() {
+      document.getElementById("wheelBox").style.display = "block";
+      document.getElementById("wheelResult").textContent = "";
+      document.getElementById("spinButton").disabled = false;
+      drawWheel();
+    }
+
+    function spinWheel() {
+      if (isSpinning) return;
+      
+      isSpinning = true;
+      document.getElementById("spinButton").disabled = true;
+      document.getElementById("wheelResult").textContent = "";
+
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
+      const spins = 5 + Math.random() * 5;
+      const totalRotation = spins * 360 + Math.random() * 360;
+      const duration = 3000;
+      const startTime = Date.now();
+
+      function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentRotation = totalRotation * easeOut;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate((currentRotation * Math.PI) / 180);
+        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+        drawWheel();
+        ctx.restore();
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // Tính phần trúng: pointer ở trên cùng
+          const normalizedRotation = totalRotation % 360;
+          const sliceAngle = 360 / prizes.length;
+          const adjustedAngle = (360 - normalizedRotation) % 360;
+          const prizeIndex = Math.floor(adjustedAngle / sliceAngle) % prizes.length;
+          showResult(prizes[prizeIndex]);
+        }
+      }
+
+      animate();
+    }
+
+    function showResult(prize) {
+      const resultDiv = document.getElementById("wheelResult");
+      resultDiv.innerHTML = `<h3 style="color: ${prize.color}; margin-top: 15px;"> ${prize.text}!</h3>`;
+      isSpinning = false;
+    }
+
+    function closeWheel() {
+      document.getElementById("wheelBox").style.display = "none";
+      checkWin();
     }
 
     loadQuestions();
