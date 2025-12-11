@@ -141,6 +141,12 @@ input {
   font-size: 16px;
 }
 
+#feedback-text {
+  font-size: 18px;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
 /* Tablet */
 @media (max-width: 768px) {
   body {
@@ -281,4 +287,19 @@ input {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Feedback modal */
+.feedback-modal {
+  max-width: 500px;
+  padding: 10px;
+  text-align: center;
+}
+
+#feedbackImage {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
 }

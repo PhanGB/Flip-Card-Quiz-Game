@@ -40,7 +40,7 @@
   <div id="wheelBox" class="modal">
     <div class="modal-content wheel-modal">
       <span class="close" onclick="closeWheel()">&times;</span>
-      <h3>Vòng quay may mắn!</h3>
+      <h3>Vòng quay may mắn! 🎉</h3>
       <div class="wheel-container">
         <canvas id="wheelCanvas" width="300" height="300"></canvas>
         <div class="wheel-pointer">▼</div>
@@ -50,14 +50,41 @@
     </div>
   </div>
 
+  <div id="feedbackBox" class="modal">
+    <div class="modal-content feedback-modal">
+      <span class="close" onclick="closeFeedback()">&times;</span>
+      <img id="feedbackImage" src="" alt="Feedback" />
+      <p id="feedback-text"></p>
+    </div>
+  </div>
+
   <script>
     let allQuestions = [];
     let availableQuestions = [];
     let mysteryAnswer = "";
+    let feedbacktext = document.getElementById("feedback-text");
 
     let currentIndex = null;
     let currentQuestion = null;
     let selectedAnswer = null;
+
+    // hình ảnh khi trả lời đúng
+    const correctImages = [
+      "images/correct-img/1.jpg",
+      "images/correct-img/2.jpg",
+      "images/correct-img/3.jpg",
+      "images/correct-img/4.webp",
+      "images/correct-img/5.jpg"
+    ];
+
+    // hình ảnh khi trả lời sai
+    const wrongImages = [
+      "images/wrong-img/1.jpg",
+      "images/wrong-img/2.jpg",
+      "images/wrong-img/3.webp",
+      "images/wrong-img/4.webp",
+      "images/wrong-img/5.jpg"
+    ];
 
     // Load câu hỏi từ file JSON
     async function loadQuestions() {
@@ -139,19 +166,21 @@
       }
 
       let correct = currentQuestion.a;
+      document.getElementById("questionBox").style.display = "none";
 
       if (selectedAnswer === correct) {
         const card = document.getElementById(`card-${currentIndex}`);
         card.classList.add("hidden-card");
         card.textContent = "";
-
-        document.getElementById("questionBox").style.display = "none";
+        feedbacktext.textContent = "Chính xác!";
         
-        // Hiển thị vòng quay may mắn
-        showWheel();
+        // Hiển thị hình ảnh đúng
+        showFeedback(true);
+
       } else {
-        alert("Sai rồi! Hãy thử lại.");
-        document.getElementById("questionBox").style.display = "none";
+        // Hiển thị hình ảnh sai
+        showFeedback(false);
+        feedbacktext.textContent = "Sai rồi!!!!!";
       }
     }
 
@@ -187,7 +216,7 @@
         alert("Chính xác! Bạn đã mở toàn bộ bức tranh.");
         document.getElementById("mysteryBox").style.display = "none";
       } else {
-        alert("Sai rồi con.");
+        alert("Sai rồi! Thử lại nhé.");
       }
     }
 
@@ -304,6 +333,25 @@
     function closeWheel() {
       document.getElementById("wheelBox").style.display = "none";
       checkWin();
+    }
+
+    function showFeedback(isCorrect) {
+      const images = isCorrect ? correctImages : wrongImages;
+      const randomImage = images[Math.floor(Math.random() * images.length)];
+      
+      document.getElementById("feedbackImage").src = randomImage;
+      document.getElementById("feedbackBox").style.display = "block";
+      
+      setTimeout(() => {
+        closeFeedback();
+        if (isCorrect) {
+          showWheel();
+        }
+      }, 2000);
+    }
+
+    function closeFeedback() {
+      document.getElementById("feedbackBox").style.display = "none";
     }
 
     loadQuestions();
