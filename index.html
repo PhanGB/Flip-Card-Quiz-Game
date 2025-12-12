@@ -14,7 +14,7 @@
   <button id="guessMystery">Trả lời ngay bức tranh bí ẩn</button>
 
   <div id="container">
-    <img id="finalImage" src="images/bao-cao.webp" width="600" />
+    <img id="finalImage" src="images/mystery_images/bao-cao.webp" width="600" />
     <div id="grid"></div>
   </div>
 
@@ -66,6 +66,7 @@
 
     let currentIndex = null;
     let currentQuestion = null;
+    let currentQuestionIndex = null;
     let selectedAnswer = null;
 
     // hình ảnh khi trả lời đúng
@@ -107,7 +108,7 @@
       }
       const randomIdx = Math.floor(Math.random() * availableQuestions.length);
       const question = availableQuestions[randomIdx];
-      availableQuestions.splice(randomIdx, 1);
+      currentQuestionIndex = randomIdx; // Lưu lại index để xóa sau nếu trả lời đúng
       return question;
     }
 
@@ -174,6 +175,12 @@
         card.textContent = "";
         feedbacktext.textContent = "Chính xác!";
         
+        // Xóa câu hỏi đã trả lời đúng khỏi danh sách
+        if (currentQuestionIndex !== null) {
+          availableQuestions.splice(currentQuestionIndex, 1);
+          currentQuestionIndex = null;
+        }
+        
         // Hiển thị hình ảnh đúng
         showFeedback(true);
 
@@ -220,11 +227,15 @@
       }
     }
 
-    // Vòng quay may mắn
+    // Vòng quay may mắn - Kẹo có tỉ lệ thấp hơn (1/8)
     const prizes = [
       { text: "Kẹo", color: "#FF6B6B" },
       { text: "+1 Điểm", color: "#4ECDC4" },
+      { text: "Trả lời tiếp", color: "#95E1D3" },
       { text: "Mời 1 Bạn", color: "#FFE66D" },
+      { text: "Trả lời tiếp", color: "#95E1D3" },
+      { text: "Mời 1 Bạn", color: "#FFE66D" },
+      { text: "+1 Điểm", color: "#4ECDC4" },
       { text: "Trả lời tiếp", color: "#95E1D3" }
     ];
     let isSpinning = false;
