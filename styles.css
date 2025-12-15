@@ -5,7 +5,7 @@
 body {
   font-family: Arial, sans-serif;
   /* background: #b07b7b; */
-  background-image: url(images/background/bg2.jpg);
+  background-image: url(images/background/bg4.jpg);
   background-size: cover;
   /* background-position: center; */
   background-repeat: no-repeat;
@@ -44,20 +44,25 @@ body {
 .card {
   width: 120px;
   height: 120px;
-  background: #3b82f6;
+  background: #cab30a;
   color: rgb(255, 255, 255);
   display: flex;
   align-items: center;
   justify-content: center;
   /* border-radius: 10px; */
   cursor: pointer;
-  font-size: 20px;
+  font-size: 24px;
   transition: all 0.3s ease;
   font-weight: bold;
-  border: 1px solid #010000;
+  border: 1px solid #ca0101;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.601);
+}
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 6px 6px 8px rgba(0, 0, 0, 0.3);
 }
 .hidden-card {
-  background: #d1d5db;
+  background: #98c0fc;
   color: transparent;
   cursor: default;
   opacity: 0;
@@ -102,9 +107,11 @@ button {
   border-radius: 5px;
   background: #3b82f6;
   color: rgb(0, 0, 0);
+  transition: all 0.2s ease;
 }
 button:hover {
   background: #2563eb;
+  transform: scale(1.02);
 }
 .option-button {
   display: block;
@@ -118,7 +125,7 @@ button:hover {
   font-size: 14px;
 }
 .option-button:hover {
-  background: #d1d5db;
+  background: #88b7ff;
 }
 .option-button.selected {
   background: #3b82f6;
@@ -127,13 +134,23 @@ button:hover {
 
 h2 {
   margin-top: 0;
+  border: 2px solid #cbfa23;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7b94ff 0%, #02ebf7 100%);
+  color: rgb(108, 51, 51);
+  width: fit-content;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #guessMystery {
-  background: #10b981;
+  background: #0044ff;
+  color: white;
+  font-weight: bold;
 }
 #guessMystery:hover {
-  background: #059669;
+  background: #007fc8;
 }
 
 input {
@@ -182,7 +199,7 @@ input {
 @media (max-width: 480px) {
   body {
     padding: 5px;
-    background-size:auto;
+    background-size: auto;
   }
 
   h2 {
@@ -290,8 +307,12 @@ input {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Feedback modal */
